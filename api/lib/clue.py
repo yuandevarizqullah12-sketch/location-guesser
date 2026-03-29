@@ -8,7 +8,13 @@ async def process_clue(clue_text):
         return {"location": None, "bonus": 0}
 
     try:
-        location = geolocator.geocode(clue_text)
+        # Geocode dengan timeout
+        location = await asyncio.wait_for(
+            asyncio.get_event_loop().run_in_executor(
+                None, geolocator.geocode, clue_text
+            ),
+            timeout=5.0
+        )
         if location:
             return {
                 "location": {
@@ -16,7 +22,7 @@ async def process_clue(clue_text):
                     "lon": location.longitude,
                     "address": location.address
                 },
-                "bonus": 10   # bonus for clue match later
+                "bonus": 10
             }
         else:
             return {"location": None, "bonus": 0}

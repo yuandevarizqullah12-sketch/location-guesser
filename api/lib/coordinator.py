@@ -1,3 +1,5 @@
+from math import radians, sin, cos, sqrt, atan2
+
 def rank_locations(candidates, img_features, clue_info, metadata):
     for candidate in candidates:
         scores = candidate["scores"]
@@ -8,11 +10,12 @@ def rank_locations(candidates, img_features, clue_info, metadata):
             scores.get("mapillary", 0) +
             scores.get("aerial", 0)
         )
-        # Bonus: if clue matches location (simplified)
-        if clue_info["location"] and is_near(candidate, clue_info["location"]):
+
+        # Bonus clue
+        if clue_info["location"] and _is_near(candidate, clue_info["location"]):
             total += clue_info["bonus"]
-        # Bonus: if GPS matches candidate (simplified)
-        if metadata["gps"] and is_near(candidate, metadata["gps"]):
+        # Bonus GPS
+        if metadata["gps"] and _is_near(candidate, metadata["gps"]):
             total += metadata["bonus"]
 
         candidate["confidence"] = round((total / 110) * 100, 2)
@@ -21,9 +24,7 @@ def rank_locations(candidates, img_features, clue_info, metadata):
     candidates.sort(key=lambda x: x["total_score"], reverse=True)
     return candidates[:5]
 
-def is_near(candidate, point, threshold_km=10):
-    # Simplified: approximate haversine distance
-    from math import radians, sin, cos, sqrt, atan2
+def _is_near(candidate, point, threshold_km=10):
     lat1, lon1 = candidate["lat"], candidate["lon"]
     lat2, lon2 = point
     R = 6371

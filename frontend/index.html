@@ -2,38 +2,43 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoGuessr - Rule Based Location Guesser</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>GeoGuessr | Rule-Based Location Guesser</title>
     <link rel="stylesheet" href="static/style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>🌍 Tebak Lokasi dari Gambar</h1>
-        <p class="sub">Non-AI · Rule‑Based · Multi‑Layer Data</p>
+    <div class="hero">
+        <div class="container">
+            <h1>🌍 Tebak Lokasi dari Gambar</h1>
+            <p class="sub">Non-AI · Rule‑Based · Multi‑Layer Data (5 sumber)</p>
 
-        <form id="uploadForm" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="image">Upload Gambar</label>
-                <input type="file" id="image" name="image" accept="image/*" required>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="image">📸 Upload Gambar</label>
+                    <input type="file" id="image" name="image" accept="image/*" required>
+                </div>
+                <div class="form-group">
+                    <label for="clue">💡 Clue (opsional) – misal: "Bali", "Jakarta", "Gunung Bromo"</label>
+                    <input type="text" id="clue" name="clue" placeholder="Kota / Negara / Landmark">
+                </div>
+                <button type="submit" id="analyzeBtn">
+                    <span>🔍 Analisis Lokasi</span>
+                </button>
+            </form>
+
+            <div id="loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Menganalisis dengan 5 sumber data...</p>
+                <p class="small">(OSM, Topo, Satellite, Mapillary, Aerial)</p>
             </div>
-            <div class="form-group">
-                <label for="clue">Clue (opsional) – misal: "Bali", "Jakarta"</label>
-                <input type="text" id="clue" name="clue" placeholder="Kota / Negara / Landmark">
+
+            <div id="results" style="display: none;">
+                <h2>🏆 Top 5 Lokasi Terprediksi</h2>
+                <div id="cards" class="cards-container"></div>
+                <div id="map" class="map-container"></div>
             </div>
-            <button type="submit" id="analyzeBtn">🔍 Analisis Lokasi</button>
-        </form>
-
-        <div id="loading" class="loading" style="display: none;">
-            <div class="spinner"></div>
-            <p>Menganalisis dengan 5 sumber data...</p>
-        </div>
-
-        <div id="results" style="display: none;">
-            <h2>🏆 Top 5 Lokasi</h2>
-            <div id="cards" class="cards-container"></div>
-            <div id="map" class="map-container"></div>
         </div>
     </div>
 

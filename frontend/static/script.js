@@ -5,9 +5,13 @@ const cardsContainer = document.getElementById('cards');
 let map = null;
 let markers = [];
 
+// Deteksi environment (local atau production)
+const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:8000/api/analyze'
+    : '/api/analyze';
+
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const formData = new FormData();
     const imageFile = document.getElementById('image').files[0];
     const clue = document.getElementById('clue').value;
 
@@ -16,6 +20,7 @@ form.addEventListener('submit', async (e) => {
         return;
     }
 
+    const formData = new FormData();
     formData.append('image', imageFile);
     if (clue) formData.append('clue', clue);
 
@@ -23,7 +28,7 @@ form.addEventListener('submit', async (e) => {
     resultsDiv.style.display = 'none';
 
     try {
-        const response = await fetch('http://localhost:8000/analyze', {
+        const response = await fetch(API_URL, {
             method: 'POST',
             body: formData
         });
@@ -39,7 +44,7 @@ form.addEventListener('submit', async (e) => {
         loadingDiv.style.display = 'none';
         resultsDiv.style.display = 'block';
     } catch (err) {
-        alert('Gagal menghubungi server. Pastikan backend berjalan di http://localhost:8000');
+        alert('Gagal menghubungi server. Pastikan backend berjalan.\n' + err.message);
         loadingDiv.style.display = 'none';
         console.error(err);
     }
@@ -52,10 +57,9 @@ function displayResults(locations) {
         map = null;
     }
 
-    // Initialize map after clearing
     map = L.map('map').setView([0, 0], 2);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors'
     }).addTo(map);
 
     markers.forEach(m => map.removeLayer(m));
@@ -67,13 +71,17 @@ function displayResults(locations) {
         card.innerHTML = `
             <h3>${idx+1}. ${loc.name || 'Lokasi Tidak Bernama'}</h3>
             <div class="score">${loc.confidence}%</div>
-            <div class="coords">${loc.lat.toFixed(4)}, ${loc.lon.toFixed(4)}</div>
-            <div>Skor: ${loc.total_score}/110</div>
+            <div class="coords">📍 ${loc.lat.toFixed(5)}, ${loc.lon.toFixed(5)}</div>
+            <div>🎯 Skor: ${loc.total_score}/110</div>
         `;
         cardsContainer.appendChild(card);
 
         const marker = L.marker([loc.lat, loc.lon])
-            .bindPopup(`<b>${loc.name || 'Lokasi'}</b><br>Confidence: ${loc.confidence}%`)
+            .bindPopup(`
+                <b>${loc.name || 'Lokasi'}</b><br>
+                Confidence: ${loc.confidence}%<br>
+                Skor: ${loc.total_score}/110
+            `)
             .addTo(map);
         markers.push(marker);
     });
