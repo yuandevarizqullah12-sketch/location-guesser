@@ -6,3 +6,6 @@ venv/
 .DS_Store
 node_modules/
 *.log
+.vercel
+uv.lock
+requirements.lock
