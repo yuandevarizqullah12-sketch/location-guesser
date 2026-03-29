@@ -2,7 +2,6 @@ import aiohttp
 import numpy as np
 from PIL import Image
 import io
-import cv2
 
 async def get_satellite_match_score(candidate, img_features):
     # Ambil tile dari Esri World Imagery
@@ -20,15 +19,21 @@ async def get_satellite_match_score(candidate, img_features):
             async with session.get(url, params=params, timeout=aiohttp.ClientTimeout(total=3)) as resp:
                 img_bytes = await resp.read()
                 img = Image.open(io.BytesIO(img_bytes))
-                img = np.array(img.convert('RGB'))
-                # Hitung green ratio
-                hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
-                green_mask = cv2.inRange(hsv, (40, 50, 20), (80, 255, 255))
-                sat_green_ratio = np.sum(green_mask > 0) / (img.shape[0] * img.shape[1])
+                img = img.convert('RGB')
+                
+                # Konversi ke numpy array untuk analisis
+                pixels = np.array(img)
+                
+                # Hitung green ratio (tanpa OpenCV)
+                # Green: nilai green > red AND green > blue
+                green_mask = (pixels[:,:,1] > pixels[:,:,0]) & (pixels[:,:,1] > pixels[:,:,2])
+                sat_green_ratio = np.mean(green_mask)
+                
                 diff = abs(sat_green_ratio - img_features["green_ratio"])
                 if diff < 0.2:
                     return 20
                 else:
                     return 0
-        except:
+        except Exception as e:
+            print(f"Esri error: {e}")
             return 0
