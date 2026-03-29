@@ -32,10 +32,25 @@ form.addEventListener('submit', async (e) => {
             method: 'POST',
             body: formData
         });
+        
+        // Cek apakah response OK
+        if (!response.ok) {
+            const text = await response.text();
+            console.error('Server response:', text);
+            throw new Error(`HTTP ${response.status}: ${text.substring(0, 100)}`);
+        }
+        
+        // Parse JSON
         const data = await response.json();
-
+        
         if (data.error) {
             alert('Error: ' + data.error);
+            loadingDiv.style.display = 'none';
+            return;
+        }
+        
+        if (!data.results || data.results.length === 0) {
+            alert('Tidak ada lokasi yang ditemukan. Coba upload gambar lain.');
             loadingDiv.style.display = 'none';
             return;
         }
@@ -44,9 +59,9 @@ form.addEventListener('submit', async (e) => {
         loadingDiv.style.display = 'none';
         resultsDiv.style.display = 'block';
     } catch (err) {
-        alert('Gagal menghubungi server. Pastikan backend berjalan.\n' + err.message);
+        console.error('Fetch error:', err);
+        alert('Gagal menghubungi server: ' + err.message);
         loadingDiv.style.display = 'none';
-        console.error(err);
     }
 });
 
